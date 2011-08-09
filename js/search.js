@@ -1,78 +1,109 @@
-DataSerializer.parse = function(json) {
-	return JSON.parse(json);
-};
-	
-// Data Structure -> JSON
-DataSerializer.serialize = function(data) {
-	return JSON.stringify(data);
-};
+Search = {}
+Search.Model = {}
 
-var Search.FunctionCode = Backbone.Model.extend({
-	practice: "",
-	sector: "",
-	code: ""
+Search.Model.FunctionCode = Backbone.Model.extend({
+	defaults: {
+		practice: "",
+		sector: "",
+		code: ""
+	}
 });
 
-var Search.FunctionCodes = Backbone.Collection.extend({
-	model: Search.FunctionCode
+Search.Model.FunctionCodes = Backbone.Collection.extend({
+	model: Search.Model.FunctionCode
 });
 
 
-var Search.TargetedCompany = Backbone.Model.extend({
-	name: "",
-	includeHierarchy: false
+Search.Model.TargetedCompany = Backbone.Model.extend({
+	defaults: {
+		name: "",
+		includeHierarchy: false
+	}
 });
 
-var Search.TargetedCompanies = Backbone.Collection.extend({
-	model: Search.TargetedCompany
+Search.Model.TargetedCompanies = Backbone.Collection.extend({
+	model: Search.Model.TargetedCompany
 });
 
-var Search.NAICSCode = Backbone.Model.extend({
-	code: "",
-	description: ""
+Search.Model.NAICSCode = Backbone.Model.extend({
+	defaults: {
+		code: "",
+		description: ""
+	}
 });
 
-var Search.NAICSCodes = Backbone.Collection.extend({
-	model: Search.NAICSCode
+Search.Model.NAICSCodes = Backbone.Collection.extend({
+	model: Search.Model.NAICSCode
 });
 
-var Search.SearchTerms = Backbone.Model.extend({
+Search.Model.SearchTerms = Backbone.Model.extend({
 	// Initial attributes
-	title: "",
-	experienceType: "",
-	workContries: [],
-	workStates: [],
-	mostCurrentWorkExperience: false,
-	geographicExposure: [],
-	baseSalaryMin: null,
-	baseSalaryMax: null,
-	educationLevel: "",
-	interestedInInterim: false,
-	certifications: [],
-	interestedInNonExec: false,
-	languages: [],
-	resumeAvailable: false,
-	willingToRelocate: false,
-	annualRevenueMin: null,
-	annualRevenueMax: null,
-	companyCountries: [],
-	ownership: "",
-	companyStates: [],
-	numberOfEmployees: "",
-	functionCodes: new Search.FunctionCodes(),
-	targetedCompanies: new Search.TargetedCompanies(),
-	naicsCodes: new Search.NAICSCodes(),
-	
-	engagementId: null,
+	defaults: { 
+		title: "",
+		experienceType: "",
+		workCountries: [],
+		workStates: [],
+		mostCurrentWorkExperience: false,
+		geographicExposure: [],
+		baseSalaryMin: null,
+		baseSalaryMax: null,
+		educationLevel: "",
+		interestedInInterim: false,
+		certifications: [],
+		interestedInNonExec: false,
+		languages: [],
+		resumeAvailable: false,
+		willingToRelocate: false,
+		annualRevenueMin: null,
+		annualRevenueMax: null,
+		companyCountries: [],
+		ownership: "",
+		companyStates: [],
+		numberOfEmployees: "",
+		functionCodes: new Search.Model.FunctionCodes(),
+		targetedCompanies: new Search.Model.TargetedCompanies(),
+		naicsCodes: new Search.Model.NAICSCodes(),	
+		engagementId: null
+	},
 	
 	//  Set Defaults from Engagement
 	setDefaults: function() {},
 	
 	// Set values by input json
-	parseJSON: function(json) {}.
+	parseJSON: function(json) {
+		data = JSON.parse(json);
+		this.set({
+			title: data.title,
+			experienceType: data.experienceType,
+			workCountries: data.workCountries,
+			workStates: data.workStates,
+			mostCurrentWorkExperience: data.mostCurrentWorkExperience,
+			geographicExposure: data.geographicExposure,
+			baseSalaryMin: data.baseSalaryMin,
+			baseSalaryMax: data.baseSalaryMax,
+			educationLevel: data.educationLevel,
+			interestedInInterim: data.interestedInInterim,
+			certifications: data.certifications,
+			interestedInNonExec: data.interestedInNonExec,
+			languages: data.languages,
+			resumeAvailable: data.resumeAvailable,
+			willingToRelocate: data.willingToRelocate,
+			annualRevenueMin: data.annualRevenueMin,
+			annualRevenueMax: data.annualRevenueMax,
+			companyCountries:  data.companyCountries,
+			ownership: data.ownership,
+			companyStates: data.companyStates,
+			numberOfEmployees: data.numberOfEmployees
+		});
+		//this.functionCodes: data.;
+		//this.targetedCompanies: data.;
+		//this.naicsCodes: data.;
+	},
 	
 	// Serialize data to JSON
-	serialize: function() {},
+	toJSON: function() {
+		return JSON.stringify(this.attributes);
+	},
 	
 	// Export data to SOQL predictate
 	toSOQLPredicate: function() {},
@@ -87,25 +118,44 @@ var Search.SearchTerms = Backbone.Model.extend({
 	addNAICSCode: function(code) {}
 });
 
-var Search.SearchResult = Backbone.Model.extend({
-	name: "",
-	company: "",
-	address: "",
-	hasResume: false,
-	hasContactProtocol: false,
-	isOffLimits: false
+Search.Model.SearchResult = Backbone.Model.extend({
+	defaults: {
+		name: "",
+		company: "",
+		address: "",
+		hasResume: false,
+		hasContactProtocol: false,
+		isOffLimits: false
+	}
 });
 
-var Search.SearchResults = Backbone.Collection.extend({
-	model: Search.SearchResult
+Search.Model.SearchResults = Backbone.Collection.extend({
+	model: Search.Model.SearchResult
 });
 
-var Search.SelectedContacts = Backbone.Collection.extend({
-	model: Search.SearchResult
+Search.Model.SelectedContacts = Backbone.Collection.extend({
+	model: Search.Model.SearchResult
 });
 
-var Search.Search = Backbone.Model.extend({
-	terms: new Search.SearchTerms(),
-	searchResults: new Search.SearchResults(),
-	selectedContacts: new Search.SelectedContacts(),
+Search.Model.App = Backbone.Model.extend({
+	terms: new Search.Model.SearchTerms(),
+	searchResults: new Search.Model.SearchResults(),
+	selectedContacts: new Search.Model.SelectedContacts(),
+	// Issue search based on search terms
+	search: function() {},
+	
+	// Add selected contacts to engagement
+	addCandidates: function() {},
+	
+	// Save search terms
+	saveSearchTerms: function() {},
+	
+	// Load search terms
+	loadSearchTerms: function() {},
+	
+	// Save search results
+	saveSearchResults: function() {},
+	
+	// Load search results
+	loadSearchResults: function() {}
 });
