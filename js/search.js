@@ -39,15 +39,15 @@ Search.Model.NAICSCodes = Backbone.Collection.extend({
 Search.Model.SearchTerms = Backbone.Model.extend({
 	// Initial attributes
 	defaults: { 
-		title: "",
-		experienceType: "",
+		title: null,
+		experienceType: "Executive",
 		workCountries: [],
 		workStates: [],
 		mostCurrentWorkExperience: false,
 		geographicExposure: [],
 		baseSalaryMin: null,
 		baseSalaryMax: null,
-		educationLevel: "",
+		educationLevel: null,
 		interestedInInterim: false,
 		certifications: [],
 		interestedInNonExec: false,
@@ -57,9 +57,9 @@ Search.Model.SearchTerms = Backbone.Model.extend({
 		annualRevenueMin: null,
 		annualRevenueMax: null,
 		companyCountries: [],
-		ownership: "",
+		ownership: null,
 		companyStates: [],
-		numberOfEmployees: "",
+		numberOfEmployees: null,
 		functionCodes: new Search.Model.FunctionCodes(),
 		targetedCompanies: new Search.Model.TargetedCompanies(),
 		naicsCodes: new Search.Model.NAICSCodes(),	
@@ -105,8 +105,67 @@ Search.Model.SearchTerms = Backbone.Model.extend({
 		return JSON.stringify(this.attributes);
 	},
 	
+	experienceSourceMap: {
+		"Executive": "Work_Experience__c",
+		"Non-Executive": "Board_Experience__c"
+	},
+	
+	attributePredicateMap: {
+		title: {field:"Position_Title__c", operator:"=", boolOp:"AND", type:"string"},
+		workCountries: {field:"Country__c", operator:"=", boolOp:"AND", type:"string"},
+		workStates: {field:"State__c", operator:"=", boolOp:"AND", type:"string"},
+		geographicExposure: {field:"Geographic__c", operator:"=", boolOp:"AND", type:"string"},
+		baseSalaryMin: {field:"Base_Salary__c", operator:">=", boolOp:"AND", type:"string"},
+		baseSalaryMax: {field:"Base_Salary__c", operator:"<=", boolOp:"AND", type:"string"},
+		mostCurrentWorkExperience: {field:"Most_Current_Position__c", operator:"=", boolOp:"AND", type:"bool"},
+		educationLevel: {field:"Contact__r.Education_Levels__c", operator:"=", boolOp:"AND", type:"string"},
+		interestedInInterim: {field:"Contact__r.Interest_in_Interim__c", operator:"=", boolOp:"AND", type:"bool"},
+		certifications: {field:"Contact__r.Certifications__c", operator:"INCLUDES", boolOp:"AND", type:"string"},
+		interestedInNonExec: {field:"Contact__r.Interest_in_Non_Exec__c", operator:"=", boolOp:"AND", type:"bool"},
+		languages: {field:"Contact__r.Languages__c", operator:"=", boolOp:"AND", type:"string"},
+		resumeAvailable: {field:"Contact__r.Resume_CV_Available__c", operator:"=", boolOp:"AND", type:"bool"},
+		willingToRelocate: {field:"Contact__r.Relocate__c", operator:"=", boolOp:"AND", type:"bool"},
+		annualRevenueMin: {field:"Company_Name__r.AnnualRevenue", operator:">=", boolOp:"AND", type:"string"},
+		annualRevenueMax: {field:"Company_Name__r.AnnualRevenue", operator:"<=", boolOp:"AND", type:"string"},
+		companyCountries: {field:"Company_Name__r.Primary_Country__c", operator:"=", boolOp:"AND", type:"string"},
+		ownership: {field:"Company_Name__r.Ownership_Type__c", operator:"=", boolOp:"AND", type:"string"},
+		companyStates: {field:"Company_Name__r.BillingState", operator:"=", boolOp:"AND", type:"string"},
+		numberOfEmployees: {field:"Company_Name__r.Number_of_Employees__c", operator:"=", boolOp:"AND", type:"string"}
+	},
+	
+	// Get condition text
+	getConditionText: function(attribute, value) {
+		if (!(value != null && value != "" && ((value.length != null && value.length > 0) || value.length == null)))
+			return "";
+			
+		if (this.attributePredicateMap.hasOwnProperty(attribute)) {
+			var predicate = this.attributePredicateMap[attribute];
+			if (predicate == undefined)
+				return "";
+			
+			var valueDelim = (predicate.type=="string") ? "\"" : "";
+			
+			return " " + predicate.boolOp + " " + predicate.field + predicate.operator + valueDelim+value+valueDelim;	
+		}
+		else {
+			if (!this.attributes.hasOwnProperty(attribute))
+				throw "Invalid attribute: " + attribute;
+				
+			return "";
+		}
+	},
+	
 	// Export data to SOQL predictate
-	toSOQLPredicate: function() {},
+	toSOQLPredicate: function() {
+		var prefix="FROM " + this.experienceSourceMap[this.get("experienceType")] + " WHERE ";
+		var soqlText="";
+		for (key in this.attributes) {
+			soqlText += this.getConditionText(key, this.get(key));
+		}
+		// Remove first "AND"
+		soqlText = soqlText.slice(5);
+		return prefix + soqlText;
+	},
 	
 	// Add Function Code
 	addFunctionCode: function(code) {},

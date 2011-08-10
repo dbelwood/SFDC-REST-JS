@@ -30,7 +30,35 @@ test ("toJSON", function() {
 	terms.parseJSON("{\"title\":\"Test JSON\", \"experienceType\":\"Executive\", \"workCountries\": [\"id1\", \"id2\"], \"workStates\": [\"id1\"], \"mostCurrentWorkExperience\": \"true\", \"geographicExposure\": [\"id1\"], \"baseSalaryMin\": \"USD100000\",\"baseSalaryMax\": \"USD400000\",\"educationLevel\": \"Graduate\", \"interestedInInterim\": \"true\", \"certifications\": [\"CPA\"], \"interestedInNonExec\": \"true\", \"languages\": [\"French\"], \"resumeAvailable\": \"true\", \"willingToRelocate\": \"true\", \"annualRevenueMin\": \"USD100000\", \"annualRevenueMax\": \"USD1000000\", \"companyCountries\": [\"id1\"], \"ownership\": \"Wholly Owned Subsidiary\", \"companyStates\": [\"id1\"], \"numberOfEmployees\": \">1000\"}");
 	equal(terms.toJSON(), "{\"title\":\"Test JSON\",\"experienceType\":\"Executive\",\"workCountries\":[\"id1\",\"id2\"],\"workStates\":[\"id1\"],\"mostCurrentWorkExperience\":\"true\",\"geographicExposure\":[\"id1\"],\"baseSalaryMin\":\"USD100000\",\"baseSalaryMax\":\"USD400000\",\"educationLevel\":\"Graduate\",\"interestedInInterim\":\"true\",\"certifications\":[\"CPA\"],\"interestedInNonExec\":\"true\",\"languages\":[\"French\"],\"resumeAvailable\":\"true\",\"willingToRelocate\":\"true\",\"annualRevenueMin\":\"USD100000\",\"annualRevenueMax\":\"USD1000000\",\"companyCountries\":[\"id1\"],\"ownership\":\"Wholly Owned Subsidiary\",\"companyStates\":[\"id1\"],\"numberOfEmployees\":\">1000\",\"functionCodes\":[],\"targetedCompanies\":[],\"naicsCodes\":[],\"engagementId\":null}");
 });
-test ("toSOQLPredicate", function(){});
+test ("toSOQLPredicate - Simple", function(){
+	var terms = new Search.Model.SearchTerms();
+	terms.set({
+		title: "Test Title",
+		experienceType: "Executive",
+		mostCurrentWorkExperience: true,
+		baseSalaryMin: "USD1",
+		baseSalaryMax: "USD10"
+	});
+	equal(terms.toSOQLPredicate(), "FROM Work_Experience__c WHERE Position_Title__c=\"Test Title\" AND Most_Current_Position__c=true AND Base_Salary__c>=\"USD1\" AND Base_Salary__c<=\"USD10\"");
+});
+test ("toSOQLPredicate - Function Codes", function(){
+	var terms = new Search.Model.SearchTerms();
+	var fc1 = new Search.Model.FunctionCode();
+	fc1.set({});
+	var fc2 = new Search.Model.FunctionCode();
+	fc2.set({});
+	terms.get("functionCodes").add(fc1);
+	terms.get("functionCodes").add(fc2);
+	equal(terms.toSOQLPredicate(), "FROM Work_Experience__c WHERE ");
+});
+test ("toSOQLPredicate - Targeted Companies", function(){
+	var terms = new Search.Model.SearchTerms();
+});
+test ("toSOQLPredicate - NAICS Codes", function(){
+	var terms = new Search.Model.SearchTerms();
+	terms.set({
+	});
+});
 test ("addFunctionCode", function(){});
 test ("addTargetedCompany", function(){});
 test ("addNAICSCode", function(){});
