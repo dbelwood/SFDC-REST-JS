@@ -37,6 +37,14 @@ Search.Model.NAICSCodes = Backbone.Collection.extend({
 });
 
 Search.Model.SearchTerms = Backbone.Model.extend({
+	initialize: function() {
+		this.set({
+			functionCodes: new Search.Model.FunctionCodes(), 
+			targetedCompanies: new Search.Model.TargetedCompanies(), 
+			naicsCodes: new Search.Model.NAICSCodes()
+		});
+	},
+	
 	// Initial attributes
 	defaults: { 
 		title: null,
@@ -59,10 +67,7 @@ Search.Model.SearchTerms = Backbone.Model.extend({
 		companyCountries: [],
 		ownership: null,
 		companyStates: [],
-		numberOfEmployees: null,
-		functionCodes: new Search.Model.FunctionCodes(),
-		targetedCompanies: new Search.Model.TargetedCompanies(),
-		naicsCodes: new Search.Model.NAICSCodes(),	
+		numberOfEmployees: null,	
 		engagementId: null
 	},
 	
@@ -155,26 +160,51 @@ Search.Model.SearchTerms = Backbone.Model.extend({
 		}
 	},
 	
+	// Construct the FC component of the predicate
+	getFCConditionText: function() {
+		if (this.get("functionCodes").length == 0)
+			return "";
+			
+		var soqlText="(";
+		var fc;
+		for (var i=0;i<this.get("functionCodes").length;i++) {
+			fc = this.get("functionCodes").at(i);
+			if (i>0)
+				soqlText += " OR ";
+			
+			soqlText += "Primary_Function_Code__c=\"" + fc.id + "\" OR Second_Function_Code__c=\"" + fc.id + "\" OR Third_Function_Code__c=\"" + fc.id + "\" OR Fourth_Function_Code__c=\"" + fc.id + "\"";
+		}
+		soqlText += ")";
+		
+		return soqlText;
+	},
+	
 	// Export data to SOQL predictate
 	toSOQLPredicate: function() {
 		var prefix="FROM " + this.experienceSourceMap[this.get("experienceType")] + " WHERE ";
 		var soqlText="";
-		for (key in this.attributes) {
+		for (var key in this.attributes) {
 			soqlText += this.getConditionText(key, this.get(key));
 		}
 		// Remove first "AND"
 		soqlText = soqlText.slice(5);
-		return prefix + soqlText;
+		return prefix + soqlText + this.getFCConditionText();
 	},
 	
 	// Add Function Code
-	addFunctionCode: function(code) {},
+	addFunctionCode: function(code) {
+		this.get("functionCodes").add(code);
+	},
 	
 	// Add Targeted Company
-	addTargetedCompany: function(company) {},
+	addTargetedCompany: function(company) {
+		this.get("targetedCompanies").add(company);
+	},
 	
 	// Add NAICS Code
-	addNAICSCode: function(code) {}
+	addNAICSCode: function(code) {
+		this.get("naicsCodes").add(code);
+	}
 });
 
 Search.Model.SearchResult = Backbone.Model.extend({
