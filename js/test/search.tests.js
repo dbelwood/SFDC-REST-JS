@@ -53,11 +53,23 @@ test ("toSOQLPredicate - Function Codes", function(){
 });
 test ("toSOQLPredicate - Targeted Companies", function(){
 	var terms = new Search.Model.SearchTerms();
+	var tc1 = new Search.Model.TargetedCompany();
+	tc1.set({id:"a1DF0000001IuoBMAF", includeHierarchy: true, ultimateParentId:"a1DF0000001IuoBMAG"});
+	var tc2 = new Search.Model.TargetedCompany();
+	tc2.set({id:"a1DF0000001IySuMAF"});
+	terms.addTargetedCompany(tc1);
+	terms.addTargetedCompany(tc2);
+	equal(terms.toSOQLPredicate(), "FROM Work_Experience__c WHERE Company_Name__c=\"a1DF0000001IuoBMAF\" OR Company_Name__c=\"a1DF0000001IySuMAF\" OR Company_Name__r.Company__r.Ultimate_Parent_Company__c=\"a1DF0000001IuoBMAG\"");
 });
 test ("toSOQLPredicate - NAICS Codes", function(){
 	var terms = new Search.Model.SearchTerms();
-	terms.set({
-	});
+	var nc1 = new Search.Model.NAICSCode();
+	nc1.set({id:"a1DF0000001IuoBMAS"});
+	var nc2 = new Search.Model.NAICSCode();
+	nc2.set({id:"a1DF0000001IySuMAK"});
+	terms.addNAICSCode(nc1);
+	terms.addNAICSCode(nc2);
+	equal(terms.toSOQLPredicate(), "FROM Work_Experience__c WHERE (First_NAICS__c=\"a1DF0000001IuoBMAS\" OR Second_NAICS__c=\"a1DF0000001IuoBMAS\" OR Third_NAICS__c=\"a1DF0000001IuoBMAS\" OR Fourth_NAICS__c=\"a1DF0000001IuoBMAS\" OR First_NAICS__c=\"a1DF0000001IySuMAK\" OR Second_NAICS__c=\"a1DF0000001IySuMAK\" OR Third_NAICS__c=\"a1DF0000001IySuMAK\" OR Fourth_NAICS__c=\"a1DF0000001IySuMAK\")");
 });
 test ("addFunctionCode", function(){
 	var terms = new Search.Model.SearchTerms();

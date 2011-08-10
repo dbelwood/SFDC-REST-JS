@@ -17,7 +17,8 @@ Search.Model.FunctionCodes = Backbone.Collection.extend({
 Search.Model.TargetedCompany = Backbone.Model.extend({
 	defaults: {
 		name: "",
-		includeHierarchy: false
+		includeHierarchy: false,
+		ultimateParentId: null
 	}
 });
 
@@ -179,6 +180,47 @@ Search.Model.SearchTerms = Backbone.Model.extend({
 		return soqlText;
 	},
 	
+	// Construct the TC component of the predicate
+	getTCConditionText: function() {
+		var soqlText="";
+		
+		for (var i=0;i<this.get("targetedCompanies").length;i++) {
+			tc = this.get("targetedCompanies").at(i);
+			if (i>0)
+				soqlText += " OR ";
+			
+			soqlText += "Company_Name__c=\""+tc.id+"\"";
+		}
+		
+		for (var i=0;i<this.get("targetedCompanies").length;i++) {
+			tc = this.get("targetedCompanies").at(i);
+			if (tc.get("includeHierarchy"))
+				soqlText += " OR Company_Name__r.Company__r.Ultimate_Parent_Company__c=\""+tc.get("ultimateParentId")+"\"";
+		}
+		
+		// Add Targeted Company Ids
+		return soqlText;
+	},
+	
+	// Construct the NC component of the predicate
+	getNCConditionText: function() {
+		if (this.get("naicsCodes").length == 0)
+			return "";
+			
+		var soqlText="(";
+		var nc;
+		for (var i=0;i<this.get("naicsCodes").length;i++) {
+			nc = this.get("naicsCodes").at(i);
+			if (i>0)
+				soqlText += " OR ";
+			
+			soqlText += "First_NAICS__c=\"" + nc.id + "\" OR Second_NAICS__c=\"" + nc.id + "\" OR Third_NAICS__c=\"" + nc.id + "\" OR Fourth_NAICS__c=\"" + nc.id + "\"";
+		}
+		soqlText += ")";
+		
+		return soqlText;
+	},
+	
 	// Export data to SOQL predictate
 	toSOQLPredicate: function() {
 		var prefix="FROM " + this.experienceSourceMap[this.get("experienceType")] + " WHERE ";
@@ -188,7 +230,7 @@ Search.Model.SearchTerms = Backbone.Model.extend({
 		}
 		// Remove first "AND"
 		soqlText = soqlText.slice(5);
-		return prefix + soqlText + this.getFCConditionText();
+		return prefix + soqlText + this.getFCConditionText() + this.getTCConditionText() + this.getNCConditionText();
 	},
 	
 	// Add Function Code
