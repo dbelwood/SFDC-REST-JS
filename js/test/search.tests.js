@@ -112,15 +112,85 @@ test ("addNAICSCode", function(){
 });
 
 module("Search.Model.SearchResult");
-test ("basicTest", function(){ok(false, "TODO: Write test.");});
+test ("basicTest", function(){
+	var result = new Search.Model.SearchResult({
+		name: "Test Name",
+		company: "Test Company",
+		address: "123 Fake Street",
+		hasResume: true,
+		hasContactProtocol: true,
+		isOffLimits: true
+	});
+	equal(result.get("name"), "Test Name");
+	equal(result.get("company"), "Test Company");
+	equal(result.get("address"), "123 Fake Street");
+	ok(result.get("hasResume"));
+	ok(result.get("hasContactProtocol"));
+	ok(result.get("isOffLimits"));
+});
 
 module("Search.Model.SearchResults");
-test ("addToCollection", function(){ok(false, "TODO: Write test.");});
-test ("removeFromCollection", function(){ok(false, "TODO: Write test.");});
+test ("addToCollection", function(){
+	var result = new Search.Model.SearchResult({
+		name: "Test Name",
+		company: "Test Company",
+		address: "123 Fake Street",
+		hasResume: true,
+		hasContactProtocol: true,
+		isOffLimits: true
+	});
+	var results = new Search.Model.SearchResults();
+	results.add(result);
+	equal(results.length, 1);
+	equal(results.at(0).get("name"), "Test Name");
+});
+test ("removeFromCollection", function(){
+	var result = new Search.Model.SearchResult({
+		name: "Test Name",
+		company: "Test Company",
+		address: "123 Fake Street",
+		hasResume: true,
+		hasContactProtocol: true,
+		isOffLimits: true
+	});
+	var results = new Search.Model.SearchResults();
+	results.add(result);
+	equal(results.length, 1);
+	results.remove(result);
+	equal(results.length, 0);
+});
 
 module("Search.Model.SelectedContacts");
-test ("addContact", function(){ok(false, "TODO: Write test.");});
-test ("removeContact", function(){ok(false, "TODO: Write test.");});
+test ("addContact", function(){
+	var result = new Search.Model.SearchResult({
+		name: "Test Name",
+		company: "Test Company",
+		address: "123 Fake Street",
+		hasResume: true,
+		hasContactProtocol: true,
+		isOffLimits: true
+	});
+	var results = new Search.Model.SelectedContacts();
+	results.add(result);
+	equal(results.length, 1);
+	equal(results.at(0).get("name"), "Test Name");
+});
+
+test ("removeContact", function(){
+	var result = new Search.Model.SearchResult({
+		name: "Test Name",
+		company: "Test Company",
+		address: "123 Fake Street",
+		hasResume: true,
+		hasContactProtocol: true,
+		isOffLimits: true
+	});
+	var results = new Search.Model.SelectedContacts();
+	results.add(result);
+	equal(results.length, 1);
+	results.remove(result);
+	equal(results.length, 0);
+});
 
 module("Search.Model.App");
 test ("search", function(){ok(false, "TODO: Write test.");});
