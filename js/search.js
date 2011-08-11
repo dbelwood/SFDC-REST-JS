@@ -268,6 +268,12 @@ Search.Model.SelectedContacts = Backbone.Collection.extend({
 	model: Search.Model.SearchResult
 });
 
+Search.Model.Connector = Backbone.Model.extend({
+	intialize: function() {
+		
+	},
+});
+
 Search.Model.App = Backbone.Model.extend({
 	intialize: function() {
 		terms: new Search.Model.SearchTerms(),
