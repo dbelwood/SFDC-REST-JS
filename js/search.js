@@ -269,9 +269,12 @@ Search.Model.SelectedContacts = Backbone.Collection.extend({
 });
 
 Search.Model.App = Backbone.Model.extend({
-	terms: new Search.Model.SearchTerms(),
-	searchResults: new Search.Model.SearchResults(),
-	selectedContacts: new Search.Model.SelectedContacts(),
+	intialize: function() {
+		terms: new Search.Model.SearchTerms(),
+		searchResults: new Search.Model.SearchResults(),
+		selectedContacts: new Search.Model.SelectedContacts(),
+	},
+	
 	// Issue search based on search terms
 	search: function() {},
 	
