@@ -276,9 +276,9 @@ Search.Model.Connector = Backbone.Model.extend({
 
 Search.Model.App = Backbone.Model.extend({
 	intialize: function() {
-		terms: new Search.Model.SearchTerms(),
-		searchResults: new Search.Model.SearchResults(),
-		selectedContacts: new Search.Model.SelectedContacts(),
+		terms = new Search.Model.SearchTerms(),
+		searchResults = new Search.Model.SearchResults(),
+		selectedContacts = new Search.Model.SelectedContacts()
 	},
 	
 	// Issue search based on search terms
